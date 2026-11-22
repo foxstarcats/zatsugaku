@@ -29,6 +29,7 @@
 | `assets/characters/` | 立ち絵を置くと動画に表示（任意） |
 | `assets/bgm/` | BGM を置くと小さく流す（任意） |
 | `zatsugaku/site.py` | 動画一覧ページの作成 |
+| `gas/drive_sync.gs` | Google ドライブへの自動保存（Apps Script） |
 | `.github/workflows/daily.yml` | 毎日の自動実行の設定 |
 
 紹介済みの雑学（重複防止用の `history.json`）は、動画と一緒に `gh-pages` ブランチに保存されます。
@@ -61,6 +62,18 @@ https://github.com/new で作成（名前の例: `zatsugaku`、**Public**、READ
 ### 5. GitHub Pages を有効にする
 **Settings → Pages** → Source: 「Deploy from a branch」→ Branch: **`gh-pages`** / `(root)` → Save
 - 1〜2分後、`https://<ユーザー名>.github.io/<リポジトリ名>/` で動画一覧ページが開けます。スマホのホーム画面に追加しておくと便利です。
+
+### 6. Google ドライブへの自動保存（任意）
+新しい動画と投稿文を、ドライブの `01_個人フォルダ/Claude/雑学/動画/` に自動で保存します（Google Apps Script・無料・PC不要）。
+
+1. https://script.google.com →「新しいプロジェクト」（名前の例: 雑学動画の保存）
+2. 最初からあるコードを消して、`gas/drive_sync.gs` の中身を貼り付けて保存
+3. 上部の関数の選択で **`setup`** を選び「実行」
+4. 「権限を確認」→ 自分のアカウント → 「詳細」→「（プロジェクト名）に移動（安全ではないページ）」→「許可」
+   - 自分で作ったスクリプトなので表示される通常の警告です
+5. 実行ログに「保存しました」と出れば完了。以後は3時間ごとに新しい動画を保存します
+
+ドライブで動画を移動・削除しても、同じ動画が再び保存されることはありません。保存先を変えるときは、コード冒頭の `FOLDER_PATH` を書き換えます。
 
 ### 費用
 GitHub Actions / Pages（公開リポジトリ）・VOICEVOX は無料、Claude は加入中プランの利用枠内（1日2〜3回の呼び出し）。**追加費用 0円**。

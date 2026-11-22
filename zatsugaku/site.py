@@ -8,12 +8,13 @@ from pathlib import Path
 
 
 def build_index(cfg: dict, out_root: Path) -> None:
-    cards = []
+    cards, listing = [], []
     for day in sorted((p for p in out_root.iterdir() if p.is_dir() and (p / "video.mp4").exists()),
                       reverse=True):
         script = json.loads((day / "script.json").read_text(encoding="utf-8"))
         post = (day / "post.txt").read_text(encoding="utf-8") if (day / "post.txt").exists() else ""
         d = day.name
+        listing.append({"date": d, "title": script["title"], "video": f"{d}/video.mp4", "post": post})
         label = f"{d[:4]}/{d[4:6]}/{d[6:]}"
         cards.append(f"""<article>
   <p class="meta">{label} ・ {html.escape(script.get('genre', ''))}</p>
@@ -59,4 +60,7 @@ document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click'
 </script></body></html>
 """
     (out_root / "index.html").write_text(page, encoding="utf-8")
+    # Google ドライブへの自動保存（gas/drive_sync.gs）が読む一覧
+    (out_root / "videos.json").write_text(json.dumps(listing, ensure_ascii=False, indent=2),
+                                          encoding="utf-8")
     (out_root / ".nojekyll").touch()
