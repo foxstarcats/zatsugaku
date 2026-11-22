@@ -1,0 +1,50 @@
+# 毎日雑学ショート動画の設定ファイル
+# ここを書き換えるだけで、声・長さ・見た目・ジャンルなどを変更できます。
+
+channel:
+  name: "1日1雑学"                 # 動画上部に表示するチャンネル名
+  hashtags: ["#雑学", "#豆知識", "#shorts"]   # 投稿文に付けるハッシュタグ（共通分）
+
+llm:
+  # claude_code: Claude のサブスクリプション（Pro/Max など）で動かす（追加費用なし）
+  # api        : Claude API キーで動かす（従量課金）
+  backend: "claude_code"
+  cli_model: "opus"
+  api_model: "claude-opus-5-5"
+  effort: "medium"
+
+video:
+  target_seconds: 30         # 目安の長さ（秒）
+  width: 1080                # 縦長（ショート動画向け 9:16）
+  height: 1920
+  fps: 30
+  bgm_volume: 0.12           # assets/bgm/ に音楽ファイルを置いた場合の音量（0〜1）
+
+voices:
+  host:                      # 解説役
+    name: "四国めたん"
+    speaker_id: 2
+    color: "#E8559A"
+  guest:                     # 聞き役（最初の「知ってる？」とツッコミ）
+    name: "ずんだもん"
+    speaker_id: 3
+    color: "#3BAF5B"
+  speed: 1.2                 # 話す速さ（1.0 が標準）
+  pause_ms: 200              # セリフ間の間（ミリ秒）
+
+topics:
+  # 雑学のジャンル。毎日この中から順番に使う（同じジャンルが続かない）
+  genres:
+    - 動物・生き物
+    - 食べ物・料理
+    - 人体・健康
+    - 宇宙・天文
+    - 歴史
+    - 日本の文化・言葉の語源
+    - 身近な科学
+    - 地理・世界の国々
+    - 乗り物・技術の発明
+    - スポーツ
+    - 植物・自然
+    - お金・経済のしくみ
+  history_size: 400          # 重複防止のために覚えておく過去の雑学の数

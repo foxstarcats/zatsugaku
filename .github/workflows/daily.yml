@@ -1,0 +1,80 @@
+name: Daily zatsugaku video
+
+on:
+  schedule:
+    - cron: "47 19 * * *"   # 毎日 4:47 (日本時間)。GitHub側の混雑で遅れることがあるため早めに設定
+  workflow_dispatch:         # Actions 画面の「Run workflow」から手動実行もできる
+    inputs:
+      force:
+        description: "今日の動画を作り直す"
+        type: boolean
+        default: false
+      genre:
+        description: "ジャンルを指定（空欄なら日替わり）"
+        type: string
+        default: ""
+
+permissions:
+  contents: write   # gh-pages ブランチへの公開
+  actions: write    # スケジュールの自動停止（60日無操作）を防ぐ
+
+concurrency:
+  group: zatsugaku
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      voicevox:
+        image: voicevox/voicevox_engine:cpu-latest
+        ports:
+          - 50021:50021
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Claude Code CLI をインストール
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: これまでの動画と履歴を取得
+        run: |
+          mkdir -p site
+          if git fetch --depth=1 origin gh-pages; then
+            git archive FETCH_HEAD | tar -x -C site
+          fi
+
+      - name: 動画を生成
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          VOICEVOX_URL: http://127.0.0.1:50021
+          GENRE: ${{ inputs.genre }}
+        run: |
+          python -m zatsugaku.generate --out-dir site --page --keep-days 14 \
+            ${{ inputs.force && '--force' || '' }} ${GENRE:+--genre "$GENRE"}
+
+      - name: 配信ページを公開（gh-pages）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd site
+          git init -q -b gh-pages
+          git add -A
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Update $(TZ=Asia/Tokyo date +%F)"
+          # 履歴は残さず最新状態だけを置く（リポジトリが肥大化しないように）
+          git push -q -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+
+      - name: スケジュール実行の自動停止を防ぐ
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/daily.yml/enable" || true
