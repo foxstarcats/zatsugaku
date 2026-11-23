@@ -195,16 +195,13 @@ def make_background(w: int, h: int, theme: str):
     return grad, pat, period
 
 
-def make_header(font_path: str, channel: str, date_label: str, w: int) -> Image.Image:
+def make_header(font_path: str, channel: str, w: int) -> Image.Image:
     font = ImageFont.truetype(font_path, 46)
-    small = ImageFont.truetype(font_path, 34)
     img = Image.new("RGBA", (w, 100), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     tw = font.getlength(channel)
     d.rounded_rectangle([60, 10, 60 + tw + 64, 90], radius=40, fill=(255, 255, 255, 235))
     d.text((92, 50), channel, font=font, fill=(255, 90, 60, 255), anchor="lm")
-    d.text((w - 60, 50), date_label, font=small, fill=(255, 255, 255, 255), anchor="rm",
-           stroke_width=4, stroke_fill=(0, 0, 0, 90))
     return img
 
 
@@ -278,14 +275,14 @@ def paste_center(frame: Image.Image, img: Image.Image, cx: int, cy: int) -> None
 
 
 def render_video(script: dict, timings: list[dict], wav_path: str, out_path: str, cfg: dict,
-                 root: Path, date_label: str, duration: float) -> None:
+                 root: Path, duration: float) -> None:
     v = cfg["video"]
     W, H, fps = v["width"], v["height"], v["fps"]
     font_path = find_font(root)
     voices = cfg["voices"]
 
     grad, pattern, period = make_background(W, H, script.get("theme", "sky"))
-    header = make_header(font_path, cfg["channel"]["name"], date_label, W)
+    header = make_header(font_path, cfg["channel"]["name"], W)
     hook = make_hook(font_path, script["hook"], W)
     disc = make_emoji_disc(620)
     captions, emojis = [], []

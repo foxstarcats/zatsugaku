@@ -24,7 +24,6 @@ from . import render, tts
 
 ROOT = Path(__file__).resolve().parent.parent
 JST = timezone(timedelta(hours=9))
-WEEKDAYS = "月火水木金土日"
 MAX_ATTEMPTS = 3
 
 
@@ -105,7 +104,6 @@ def main() -> int:
 
     now = datetime.now(JST)
     stamp = now.strftime("%Y%m%d")
-    date_label = f"{now.month}/{now.day}（{WEEKDAYS[now.weekday()]}）"
     day_dir = out_root / stamp
     if (day_dir / "video.mp4").exists() and not args.force:
         print(f"{stamp} の動画は作成済みです（作り直す場合は --force）")
@@ -139,7 +137,7 @@ def main() -> int:
         # 3. 動画（一時ファイルに書いてから置き換える。Google ドライブ同期中の書き込み対策）
         print("動画を描画中...")
         tmp_mp4 = str(Path(tmp) / "video.mp4")
-        render.render_video(script, timings, wav_path, tmp_mp4, cfg, ROOT, date_label, duration)
+        render.render_video(script, timings, wav_path, tmp_mp4, cfg, ROOT, duration)
         (day_dir / "video.mp4").write_bytes(Path(tmp_mp4).read_bytes())
 
     save_json(day_dir / "script.json", script)
