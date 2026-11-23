@@ -1,8 +1,8 @@
 name: Daily zatsugaku video
 
 on:
-  schedule:
-    - cron: "47 19 * * *"   # 毎日 4:47 (日本時間)。GitHub側の混雑で遅れることがあるため早めに設定
+  # schedule:  # 2026-11-23 停止（猫社員コントへ移行）。再開するときはこの2行のコメントを外す
+  #   - cron: "47 19 * * *"   # 毎日 4:47 (日本時間)。GitHub側の混雑で遅れることがあるため早めに設定
   workflow_dispatch:         # Actions 画面の「Run workflow」から手動実行もできる
     inputs:
       force:
